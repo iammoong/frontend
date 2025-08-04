@@ -1,0 +1,14 @@
+{
+  "label": {
+    "userId": "User ID",
+    "password": "Password",
+    "username": "Name",
+    "nickname": "Nickname"
+  },
+  "msg": {
+    "emptyLogin": "Please enter your ID and password.",
+    "signupSuccess": "Signup completed!",
+    "userIdDuplicate": "This ID is already in use.",
+    "userIdAvailable": "This ID is available."
+  }
+}
