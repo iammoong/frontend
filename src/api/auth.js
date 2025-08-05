@@ -7,5 +7,5 @@ const api = axios.create({
 })
 
 export function signup(data) {
-    return api.post('/auth/signup', data)
+    return api.post('api/auth/signup', data)
 }

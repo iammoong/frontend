@@ -4,10 +4,10 @@ import AlertToast from './components/alert/AlertToast.vue'
 </script>
 
 <template>
-<!--  <LoginForm />-->
-  <router-view />
-  <AlertToast />
-
+  <v-app>
+    <router-view/>
+    <AlertToast/>
+  </v-app>
 </template>
 
 

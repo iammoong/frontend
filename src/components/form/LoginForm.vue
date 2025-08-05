@@ -123,12 +123,15 @@ async function onLogin() {
   try {
     const response = await login(userId.value, password.value)
     const data = response.data
-    // alertStore.show(`${data.username}님 환영합니다!`)
-    await router.push({name: 'Main'})
+    localStorage.setItem('jwtToken', data.token)
+    // await router.push({name: 'Main'})
+    // 로그인 성공 후
+    await router.replace({ name: 'Main' })
     // 필요시 로그인 성공 후 라우팅 등 처리
   } catch (e) {
-    alertStore.show(t('msg.login.invalidLogin'))
-    console.log(e)
+    alertStore.show(
+        e?.response?.data?.message || t('msg.login.invalidLogin')
+    );
   }
 }
 

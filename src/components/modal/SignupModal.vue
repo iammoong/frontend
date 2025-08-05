@@ -332,7 +332,7 @@ async function onSignup() {
   }
   // 모두 입력된 경우 회원가입 요청
   try {
-    await post('/auth/signup', {
+    await post('api/auth/signup', {
       userId: userId.value,
       username: username.value,
       password: password.value,

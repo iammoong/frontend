@@ -17,7 +17,7 @@ function create(baseURL, options = {}) {
 const apiBase = import.meta.env.VITE_API_URL
 
 // 예시: posts 인스턴스 (baseURL + 'posts')
-export const posts = create(`${apiBase}posts`)
+export const posts = create(`${apiBase}api/posts`)
 
 // 확장: user 인스턴스 등 필요시 더 만들 수 있습니다.
-export const user = create(`${apiBase}user`)
+export const user = create(`${apiBase}api/user`)

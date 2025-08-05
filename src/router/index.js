@@ -23,10 +23,26 @@ const useRouters = [
     },
 ]
 
+
+
 // 라우터 생성
 const router = createRouter({
     history: createWebHistory(),
     routes: useRouters,
+})
+
+// 전역 네비게이션 가드
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem('jwtToken')
+    if (to.name !== 'Login' && !token) {
+        // 토큰이 없으면 로그인 페이지로
+        next({ name: 'Login' })
+    } else if (to.name === 'Login' && token) {
+        // 이미 로그인 상태인데 로그인 페이지 접근시 메인으로 리다이렉트
+        next({ name: 'Main' })
+    } else {
+        next()
+    }
 })
 
 export default router
