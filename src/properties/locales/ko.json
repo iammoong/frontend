@@ -2,6 +2,9 @@
   "label": {
     "cancel" : "취소",
     "next" : "다음",
+    "logout": "로그아웃",
+    "confirm": "확인",
+    "close": "닫기",
     "loginForm": {
       "login": "로그인",
       "userId": "아이디",
@@ -9,12 +12,29 @@
       "username": "이름",
       "password": "비밀번호",
       "passwordConfirm": "비밀번호 확인",
+      "email": {
+        "id": "이메일 아이디",
+        "domain" : "도메인",
+        "direct" : "직접입력"
+      },
+      "phone": {
+        "guide" : "010"
+      },
       "signup": "회원가입",
       "capslock" : "CapsLock이 활성화 되어있습니다."
     },
     "signup": {
       "duplicationCheck" : "중복확인",
       "accession": "가입하기"
+    },
+    "find": {
+      "title": "아이디 / 비밀번호 찾기",
+      "id": "아이디 찾기",
+      "password": "비밀번호 찾기",
+      "email" : "이메일로 찾기",
+      "phone": "휴대전화로 찾기",
+      "sendCode": "인증번호 전송",
+      "codeConfirm": "인증번호 입력"
     }
 
 

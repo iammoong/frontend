@@ -1,7 +1,7 @@
 <template>
   <v-app-bar
       flat
-      color="#232a36"
+      color="primary"
       class="px-6"
       height="72"
       style="backdrop-filter: blur(6px);"
@@ -39,7 +39,7 @@
         class="ml-6"
         @click="logout"
     >
-      로그아웃
+      {{ t('label.logout') }}
     </v-btn>
   </v-app-bar>
 </template>
@@ -47,7 +47,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import {useI18n} from "vue-i18n";
 
+const { t } = useI18n()
 const router = useRouter()
 const tab = ref('home')
 const menus = [

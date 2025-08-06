@@ -25,9 +25,13 @@
         <v-btn class="mt-3" variant="text" @click="openSignupAgreement = true">
           {{ t('label.loginForm.signup') }}
         </v-btn>
+        <v-btn class="mt-3 ml-15" variant="text" @click="openFindModal = true">
+          아이디/비밀번호 찾기
+        </v-btn>
       </v-form>
       <SignupAgreementModal :open="openSignupAgreement" @next="openSignupNext" @close="openSignupAgreement = false"/>
       <SignupModal :open="openSignup" @close="openSignup = false" />
+      <FindAccountModal :open="openFindModal" @close="openFindModal = false"/>
     </v-card>
   </v-container>
 </template>
@@ -36,6 +40,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import SignupModal from '../modal/SignupModal.vue'
 import SignupAgreementModal from '../modal/SignupAgreementModal.vue'
+import FindAccountModal from '../modal/FindAccountModal.vue'
 import { useAlertStore } from '@/store/alert.js'
 import { useI18n } from 'vue-i18n'
 import { useAxios } from '@/hooks/user/useAxios.js'
@@ -49,8 +54,12 @@ const router = useRouter()
 const userId = ref('')
 const password = ref('')
 const isCapsLock = ref(false)
+// 회원가입 버튼
 const openSignupAgreement = ref(false)
 const openSignup = ref(false)
+// 아이디,비밀번호 찾기 버튼
+const openFindModal = ref(false)
+
 const { login } = useAxios()
 
 // 페이지 전체 CapsLock 감지

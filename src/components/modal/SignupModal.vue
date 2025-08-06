@@ -1,9 +1,9 @@
 <template>
   <v-dialog :model-value="open" @update:model-value="close" max-width="400">
     <v-card>
-      <v-card-title>{{ t('label.loginForm.signup') }}</v-card-title>
+      <v-card-title  style="position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid #eee;">{{ t('label.loginForm.signup') }}</v-card-title>
       <v-form @submit.prevent="onSignup">
-        <v-card-text>
+        <v-card-text style="overflow-y: auto; flex: 1 1 auto; min-height: 0;">
           <!-- 아이디 입력 및 중복확인 버튼 -->
           <div class="d-flex mb-2 align-center">
             <div style="flex:1; display: flex; flex-direction: column;">
@@ -64,6 +64,68 @@
                    @click="onCheckNickname">{{ t('label.signup.duplicationCheck') }}</v-btn>
           </div>
 
+          <!-- 이메일 입력란 -->
+          <div class="d-flex mb-2 align-center">
+            <v-text-field
+                v-model="emailId"
+                :label="t('label.loginForm.email.id')"
+                required
+                maxlength="30"
+                style="max-width:100px;"
+                autocomplete="off"
+            />
+            <span class="mx-1">@</span>
+            <v-text-field
+                v-model="emailDomain"
+                :readonly="selectedEmailDomain !== t('label.loginForm.email.direct')"
+                required
+                maxlength="30"
+                style="max-width:110px;"
+                autocomplete="off"
+                ref="emailDomainInput"
+            />
+            <v-select
+                v-model="selectedEmailDomain"
+                :items="emailDomainOptions"
+                density="compact"
+                hide-details
+                style="max-width:130px;"
+                class="ml-3 mb-2"
+                @update:modelValue="onSelectEmailDomain"
+            />
+          </div>
+
+          <!-- 휴대전화 입력란 -->
+          <div class="d-flex mb-2 align-center">
+            <v-text-field
+                v-model="phone1"
+                maxlength="3"
+                :placeholder="t('label.loginForm.phone.guide')"
+                required
+                style="max-width:60px;"
+                @input="onPhoneInput('phone1', 3, $event)"
+                ref="phone1Input"
+            />
+            <span class="mx-1">-</span>
+            <v-text-field
+                v-model="phone2"
+                maxlength="4"
+                required
+                style="max-width:70px;"
+                @input="onPhoneInput('phone2', 4, $event)"
+                ref="phone2Input"
+            />
+            <span class="mx-1">-</span>
+            <v-text-field
+                v-model="phone3"
+                maxlength="4"
+                required
+                style="max-width:70px;"
+                @input="onPhoneInput('phone3', 4, $event)"
+                ref="phone3Input"
+            />
+          </div>
+
           <!-- 이름 입력 -->
           <v-text-field
               v-model="username"
@@ -97,7 +159,7 @@
             {{t('msg.validation.passwordNotEqual') }}
           </div>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions style="position: sticky; bottom: 0; z-index: 10; background: #fff; border-top: 1px solid #eee;">
           <!-- 가입/취소 버튼 -->
           <v-btn type="submit" color="primary"
                  :disabled="!isUserIdChecked || !isUserIdAvailable || !isNicknameChecked || !isNicknameAvailable"
@@ -111,7 +173,7 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
+import {onMounted, ref, nextTick} from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAxios } from '@/hooks/user/useAxios.js'
 import { useAlertStore } from '@/store/alert.js'
@@ -198,6 +260,43 @@ onMounted(() => {
     input.addEventListener('compositionend', () => isComposing.value = false)
   }
 })
+
+// 이메일 관련
+const emailId = ref('')
+const emailDomain = ref('')
+const selectedEmailDomain = ref(t('label.loginForm.email.direct'))
+const emailDomainOptions = [t('label.loginForm.email.direct'), 'daum.net', 'kakao.com', 'naver.com', 'gmail.com', 'nate.com']
+const emailDomainInput = ref(null)
+
+function onSelectEmailDomain(val) {
+  if (val === '직접입력') {
+    nextTick(() => emailDomainInput.value?.focus())
+    emailDomain.value = ''
+  } else {
+    emailDomain.value = val
+  }
+}
+
+// 휴대전화 관련
+const phone1 = ref('')
+const phone2 = ref('')
+const phone3 = ref('')
+const phone1Input = ref(null)
+const phone2Input = ref(null)
+const phone3Input = ref(null)
+
+function onPhoneInput(type, maxLen, e) {
+  let v = e.target.value.replace(/[^0-9]/g, '').slice(0, maxLen)
+  if (type === 'phone1') phone1.value = v
+  if (type === 'phone2') phone2.value = v
+  if (type === 'phone3') phone3.value = v
+
+  // 자리수 다 채우면 자동 포커스
+  if (v.length === maxLen) {
+    if (type === 'phone1') nextTick(() => phone2Input.value.focus())
+    else if (type === 'phone2') nextTick(() => phone3Input.value.focus())
+  }
+}
 
 // 기타 입력값 변경시 에러 해제
 function onInput(field) {
@@ -337,6 +436,8 @@ async function onSignup() {
       username: username.value,
       password: password.value,
       nickname: nickname.value,
+      email: emailId.value && emailDomain.value ? `${emailId.value}@${emailDomain.value}` : '',
+      phone: [phone1.value, phone2.value, phone3.value].join('-'),
     })
     alertStore.show(t('msg.signup.signupSuccess'))
     close()
@@ -353,6 +454,11 @@ function close() {
   username.value = ''
   password.value = ''
   passwordConfirm.value = ''
+  phone1.value = ''
+  phone2.value = ''
+  phone3.value = ''
+  emailId.value = ''
+  emailDomain.value = ''
   userIdError.value = nicknameError.value = usernameError.value = passwordError.value = false
   userIdGuide.value = userIdLengthError.value = false
   nicknameCharError.value = nicknameLengthError.value = false
