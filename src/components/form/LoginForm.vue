@@ -126,7 +126,7 @@ function onUserIdInput(e) {
 
 async function onLogin() {
   if (!userId.value || !password.value) {
-    alertStore.show(t('msg.login.emptyLogin'))
+    alertStore.show(t('msg.login.emptyLogin'),'error')
     return
   }
   try {
@@ -139,7 +139,7 @@ async function onLogin() {
     // 필요시 로그인 성공 후 라우팅 등 처리
   } catch (e) {
     alertStore.show(
-        e?.response?.data?.message || t('msg.login.invalidLogin')
+        e?.response?.data?.message || t('msg.login.invalidLogin'),'error'
     );
   }
 }

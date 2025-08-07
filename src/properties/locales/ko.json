@@ -15,7 +15,12 @@
       "email": {
         "id": "이메일 아이디",
         "domain" : "도메인",
-        "direct" : "직접입력"
+        "direct" : "직접입력",
+        "daum": "daum.net",
+        "naver": "naver.com",
+        "gmail" : "gmail.com",
+        "nate" : "nate.com",
+        "kakao" : "kakao.com"
       },
       "phone": {
         "guide" : "010"
@@ -34,7 +39,14 @@
       "email" : "이메일로 찾기",
       "phone": "휴대전화로 찾기",
       "sendCode": "인증번호 전송",
-      "codeConfirm": "인증번호 입력"
+      "codeConfirm": "인증번호 입력",
+      "sendCodeComplete": "인증번호가 발송되었습니다.",
+      "sendCodeFail": "인증번호가 발송에 실패하였습니다.",
+      "codeIncorrect" : "인증번호가 올바르지 않습니다.",
+      "codeCheckFail" : "인증 확인에 실패했습니다.",
+      "notExistId": "등록된 아이디가 없습니다.",
+      "remainTime" : "남은 시간",
+      "expiredTime" : "인증 시간이 만료되었습니다."
     }
 
 
@@ -71,6 +83,12 @@
     "signup": {
       "signupSuccess": "회원가입이 완료되었습니다!",
       "signupFail": "회원가입에 실패하였습니다."
+    },
+    "closeConfirm": {
+      "title": "작성 취소 안내",
+      "content1" : "아직 작성중에 있습니다.\n\n작성을 취소하시겠습니까?\n\n",
+      "content2" : "(작성중인게 있다면 초기화됩니다.)",
+      "continue" : "계속 작성"
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :model-value="open" @update:model-value="close" max-width="400">
+  <v-dialog :model-value="open" @update:model-value="close" max-width="400" persistent>
     <v-card>
       <v-card-title  style="position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid #eee;">{{ t('label.loginForm.signup') }}</v-card-title>
       <v-form @submit.prevent="onSignup">
@@ -165,9 +165,24 @@
                  :disabled="!isUserIdChecked || !isUserIdAvailable || !isNicknameChecked || !isNicknameAvailable"
           >{{ t('label.signup.accession') }}
           </v-btn>
-          <v-btn text @click="close">{{ t('label.cancel') }}</v-btn>
+          <v-btn text @click="onClickCancel">{{ t('label.cancel') }}</v-btn>
         </v-card-actions>
       </v-form>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog v-model="showConfirmClose" max-width="360">
+    <v-card>
+      <v-card-title class="font-weight-bold">{{ t('msg.closeConfirm.title') }}</v-card-title>
+      <v-card-text>
+        {{ t('msg.closeConfirm.content1') }}
+        <br>
+        <span style="color:#e53935;">{{ t('msg.closeConfirm.content2') }}</span>
+      </v-card-text>
+      <v-card-actions class="justify-end">
+        <v-btn text @click="showConfirmClose = false">{{ t('msg.closeConfirm.continue') }}</v-btn>
+        <v-btn color="primary" @click="onConfirmClose">{{ t('label.confirm') }}</v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
@@ -265,7 +280,13 @@ onMounted(() => {
 const emailId = ref('')
 const emailDomain = ref('')
 const selectedEmailDomain = ref(t('label.loginForm.email.direct'))
-const emailDomainOptions = [t('label.loginForm.email.direct'), 'daum.net', 'kakao.com', 'naver.com', 'gmail.com', 'nate.com']
+const emailDomainOptions = [
+    t('label.loginForm.email.direct'),
+    t('label.loginForm.email.daum'),
+    t('label.loginForm.email.kakao'),
+    t('label.loginForm.email.naver'),
+    t('label.loginForm.email.gmail'),
+    t('label.loginForm.email.nate'),]
 const emailDomainInput = ref(null)
 
 function onSelectEmailDomain(val) {
@@ -324,7 +345,7 @@ async function onCheckUserId() {
   isUserIdAvailable.value = false
   // 입력 및 길이 체크
   if (!userId.value) {
-    alertStore.show(t('msg.login.emptyUserId'))
+    alertStore.show(t('msg.login.emptyUserId'),'error')
     userIdError.value = true
     userIdInput.value?.focus()
     return
@@ -338,9 +359,9 @@ async function onCheckUserId() {
   isUserIdChecked.value = true
   isUserIdAvailable.value = !data
   if (data) {
-    alertStore.show(t('msg.duplication.userIdDuplicate'))
+    alertStore.show(t('msg.duplication.userIdDuplicate'),'error')
   } else {
-    alertStore.show(t('msg.duplication.userIdAvailable'))
+    alertStore.show(t('msg.duplication.userIdAvailable'),'success')
   }
 }
 
@@ -349,7 +370,7 @@ async function onCheckNickname() {
   isNicknameChecked.value = false
   isNicknameAvailable.value = false
   if (!nickname.value) {
-    alertStore.show(t('msg.validation.emptyNickname'))
+    alertStore.show(t('msg.validation.emptyNickname'),'error')
     nicknameError.value = true
     nicknameInput.value?.focus()
     return
@@ -363,9 +384,9 @@ async function onCheckNickname() {
   isNicknameChecked.value = true
   isNicknameAvailable.value = !data
   if (data) {
-    alertStore.show(t('msg.duplication.nicknameDuplicate'))
+    alertStore.show(t('msg.duplication.nicknameDuplicate'),'error')
   } else {
-    alertStore.show(t('msg.duplication.nicknameAvailable'))
+    alertStore.show(t('msg.duplication.nicknameAvailable'),'success')
   }
 }
 
@@ -380,53 +401,51 @@ async function onSignup() {
   if (!userId.value) {
     userIdError.value = true
     userIdInput.value?.focus()
-    alertStore.show(t('msg.login.emptyUserId'))
+    alertStore.show(t('msg.login.emptyUserId'),'error')
     return
   }
   if (userId.value.length < 4 || userId.value.length > 16) {
     userIdLengthError.value = true
     userIdInput.value?.focus()
-    alertStore.show('아이디는 4자 이상~16자 이하로 입력해주세요.')
     return
   }
   // 닉네임 유효성
   if (!nickname.value) {
     nicknameError.value = true
     nicknameInput.value?.focus()
-    alertStore.show(t('msg.validation.emptyNickname'))
+    alertStore.show(t('msg.validation.emptyNickname'),'error')
     return
   }
   if (nickname.value.length < 2 || nickname.value.length > 8) {
     nicknameLengthError.value = true
     nicknameInput.value?.focus()
-    alertStore.show('닉네임은 2자 이상~8자 이하로 입력해주세요.')
     return
   }
   // 이름, 비밀번호, 비번확인
   if (!username.value) {
     usernameError.value = true
     usernameInput.value?.focus()
-    alertStore.show(t('msg.validation.emptyUsername'))
+    alertStore.show(t('msg.validation.emptyUsername'),'error')
     return
   }
   if (!password.value) {
     passwordError.value = true
     passwordInput.value?.focus()
-    alertStore.show(t('msg.validation.emptyPassword'))
+    alertStore.show(t('msg.validation.emptyPassword'),'error')
     return
   }
   if (!passwordConfirm.value) {
     passwordConfirmError.value = true
     passwordConfirmInput.value?.focus()
     passwordConfirmGuide.value = false
-    alertStore.show(t('msg.validation.emptyPasswordConfirm'))
+    alertStore.show(t('msg.validation.emptyPasswordConfirm'),'error')
     return
   }
   if (password.value !== passwordConfirm.value) {
     passwordConfirmError.value = true
     passwordConfirmGuide.value = true
     passwordConfirmInput.value?.focus()
-    alertStore.show(t('msg.validation.passwordNotEqual'))
+    alertStore.show(t('msg.validation.passwordNotEqual'),'error')
     return
   }
   // 모두 입력된 경우 회원가입 요청
@@ -439,10 +458,18 @@ async function onSignup() {
       email: emailId.value && emailDomain.value ? `${emailId.value}@${emailDomain.value}` : '',
       phone: [phone1.value, phone2.value, phone3.value].join('-'),
     })
-    alertStore.show(t('msg.signup.signupSuccess'))
+    // alertStore.show(t('msg.signup.signupSuccess'))
+    alertStore.show(t('msg.signup.signupSuccess'), 'success')
     close()
   } catch (e) {
-    alertStore.show(e?.response?.data?.message || t('msg.signup.signupFail'))
+    const errMsg = e?.response?.data?.message
+    if (errMsg === '이미 등록된 이메일 아이디 입니다.') {
+      alertStore.show(errMsg, 'error')
+    } else{
+      alertStore.show(errMsg || t('msg.signup.signupFail'), 'error')
+    }
+    // alertStore.show(e?.response?.data?.message || t('msg.signup.signupFail'))
+
   }
 }
 
@@ -459,10 +486,41 @@ function close() {
   phone3.value = ''
   emailId.value = ''
   emailDomain.value = ''
+  selectedEmailDomain.value = t('label.loginForm.email.direct');
   userIdError.value = nicknameError.value = usernameError.value = passwordError.value = false
   userIdGuide.value = userIdLengthError.value = false
   nicknameCharError.value = nicknameLengthError.value = false
   passwordConfirmGuide.value = false
   isNicknameChecked.value = isNicknameAvailable.value = isUserIdChecked.value = isUserIdAvailable.value = false
+}
+
+function isFormDirty() {
+  // 하나라도 값이 입력되어 있으면 true 반환
+  return (
+      userId.value ||
+      nickname.value ||
+      username.value ||
+      password.value ||
+      passwordConfirm.value ||
+      phone1.value ||
+      phone2.value ||
+      phone3.value ||
+      emailId.value ||
+      emailDomain.value
+  )
+}
+
+const showConfirmClose = ref(false)
+function onClickCancel() {
+  if (isFormDirty()) {
+    showConfirmClose.value = true
+  } else {
+    close()
+  }
+}
+
+function onConfirmClose() {
+  showConfirmClose.value = false
+  close()
 }
 </script>

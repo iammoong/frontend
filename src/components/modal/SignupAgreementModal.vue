@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :model-value="open" @update:model-value="close" max-width="400">
+  <v-dialog :model-value="open" @update:model-value="close" max-width="400" persistent>
     <v-card>
       <v-card-title class="ml-3">{{ t('agreement.title') }}</v-card-title>
       <v-card-text>
