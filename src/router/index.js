@@ -18,6 +18,11 @@ const useRouters = [
         component: LoginForm
     },
     {
+        path: '/oauth/kakao/callback',
+        name: 'KakaoCallback',
+        component: () => import('@/views/kakao/KakaoCallback.vue'),
+    },
+    {
         path: '/main',
         name:'Main',
         component: Main

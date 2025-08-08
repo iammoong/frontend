@@ -5,6 +5,7 @@
     "logout": "로그아웃",
     "confirm": "확인",
     "close": "닫기",
+    "findIdPw" : "아이디/비밀번호 찾기",
     "loginForm": {
       "login": "로그인",
       "userId": "아이디",

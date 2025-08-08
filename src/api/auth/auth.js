@@ -16,6 +16,10 @@ export async function checkCodeAndFindId(email, code) {
     return api.post('/auth/mail/checkCodeAndFindId', { email, code });
 }
 
+export async function kakaoLogin(code) {
+    return api.post('/auth/kakao/login', { code });
+}
+
 // 비밀번호 찾기: userId로 연락처(이메일, 휴대폰) 마스킹 조회
 export async function findUser(userId) {
     return api.get('/auth/mail/findUser', { params: { userId } });

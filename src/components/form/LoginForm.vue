@@ -22,11 +22,23 @@
         <v-btn type="submit" block color="primary" size="large" class="mt-2 mb-1">
           {{ t('label.loginForm.login') }}
         </v-btn>
+        <v-btn
+            block
+            class="kakao-image-btn mt-4"
+            @click="onKakaoLogin"
+            style="padding:0; min-width: 0; border-radius: 10px; overflow: hidden; height:56px;"
+        >
+          <img
+              src="@/assets/kakao_logo_wide.png"
+              alt="카카오 로그인"
+              style="width:100%; height:100%; object-fit:cover; pointer-events:none;"
+          />
+        </v-btn>
         <v-btn class="mt-3" variant="text" @click="openSignupAgreement = true">
           {{ t('label.loginForm.signup') }}
         </v-btn>
         <v-btn class="mt-3 ml-15" variant="text" @click="openFindModal = true">
-          아이디/비밀번호 찾기
+          {{ t('label.findIdPw') }}
         </v-btn>
       </v-form>
       <SignupAgreementModal :open="openSignupAgreement" @next="openSignupNext" @close="openSignupAgreement = false"/>
@@ -147,5 +159,16 @@ async function onLogin() {
 function openSignupNext() {
   openSignupAgreement.value = false
   openSignup.value = true
+}
+
+function onKakaoLogin() {
+  const clientId = import.meta.env.VITE_KAKAO_CLIENT_ID;
+  const redirectUri = import.meta.env.VITE_KAKAO_REDIRECT_URI;
+  let url;
+  url = `https://kauth.kakao.com/oauth/authorize` +
+      `?client_id=${clientId}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=code`;
+  window.location.href = url;
 }
 </script>
