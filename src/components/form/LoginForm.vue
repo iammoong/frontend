@@ -25,13 +25,22 @@
         <v-btn
             block
             class="kakao-image-btn mt-4"
+            elevation="0"
+            rounded="lg"
             @click="onKakaoLogin"
             style="padding:0; min-width: 0; border-radius: 10px; overflow: hidden; height:56px;"
         >
           <img
               src="@/assets/kakao_logo_wide.png"
               alt="카카오 로그인"
-              style="width:100%; height:100%; object-fit:cover; pointer-events:none;"
+              draggable="false"
+              style="
+              width:330px;
+              height:45px;
+              object-fit:cover;
+              pointer-events:none;
+              border-radius:10%;
+              overflow:hidden;"
           />
         </v-btn>
         <v-btn class="mt-3" variant="text" @click="openSignupAgreement = true">
@@ -161,14 +170,16 @@ function openSignupNext() {
   openSignup.value = true
 }
 
+const AUTH = import.meta.env.VITE_KAKAO_AUTHORIZE
+const CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID
+const REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI
+
 function onKakaoLogin() {
-  const clientId = import.meta.env.VITE_KAKAO_CLIENT_ID;
-  const redirectUri = import.meta.env.VITE_KAKAO_REDIRECT_URI;
-  let url;
-  url = `https://kauth.kakao.com/oauth/authorize` +
-      `?client_id=${clientId}` +
-      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-      `&response_type=code`;
-  window.location.href = url;
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    response_type: 'code',
+  })
+  window.location.href = `${AUTH}?${params.toString()}`
 }
 </script>

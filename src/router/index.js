@@ -5,6 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginForm from '../components/form/LoginForm.vue'
 import Main from '../views/main/Main.vue'
 import ErrorPage from '../views/error/ErrorPageView.vue'
+import KakaoCallback from '@/views/kakao/KakaoCallback.vue'
 
 // 라우트 정의
 const useRouters = [
@@ -20,7 +21,7 @@ const useRouters = [
     {
         path: '/oauth/kakao/callback',
         name: 'KakaoCallback',
-        component: () => import('@/views/kakao/KakaoCallback.vue'),
+        component: KakaoCallback
     },
     {
         path: '/main',
@@ -45,8 +46,6 @@ const useRouters = [
     }
 ]
 
-
-
 // 라우터 생성
 const router = createRouter({
     history: createWebHistory(),
@@ -57,29 +56,18 @@ router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('jwtToken')
 
     // 에러 페이지들은 토큰 없어도 항상 접근 허용
-    const publicPages = ['Login', undefined]  // undefined는 404 page, name이 없음
+    const publicPages = ['Login','KakaoCallback', undefined]  // undefined는 404 page, name이 없음
     const errorPaths = ['/403', '/404', '/500']
 
-    if (errorPaths.includes(to.path)) {
-        next()
-        return
-    }
+    if (errorPaths.includes(to.path)) return next()
 
-    // 존재하지 않는 path는 404 페이지(이동 name undefined)
-    if (!to.name) {
-        next()
-        return
-    }
+    // publicPages에 포함되어 있으면 토큰 없이도 접근 허용
+    if (publicPages.includes(to.name)) return next()
 
-    // 토큰 없는 상태에서 로그인 외 페이지 접근 시 로그인으로
-    if (to.name !== 'Login' && !token) {
-        next({ name: 'Login' })
-    } else if (to.name === 'Login' && token) {
-        // 로그인 상태에서 로그인 페이지 접근시 메인으로
-        next({ name: 'Main' })
-    } else {
-        next()
+    if (!token) {
+        return next({ name: 'Login' })
     }
+    next()
 })
 
 
