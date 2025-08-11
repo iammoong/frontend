@@ -32,22 +32,30 @@
     </v-tabs>
     <v-spacer />
 
-    <!-- Right: Logout -->
-    <v-btn
-        color="grey-lighten-2"
-        variant="tonal"
-        class="ml-6"
-        @click="logout"
-    >
-      {{ t('label.logout') }}
-    </v-btn>
+    <!-- Right: Settings (⚙ 드롭다운) -->
+    <v-menu>
+      <template #activator="{ props }">
+        <v-btn v-bind="props" icon>
+          <v-icon>mdi-cog</v-icon>
+        </v-btn>
+      </template>
+
+      <v-list>
+        <v-list-item @click="goAccount">
+          <v-list-item-title>내 정보</v-list-item-title>
+        </v-list-item>
+        <v-list-item @click="onLogout">
+          <v-list-item-title>{{ t('label.logout') }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
   </v-app-bar>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import {useI18n} from "vue-i18n";
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -56,24 +64,25 @@ const menus = [
   { label: 'Home', value: 'home' },
   { label: 'Models', value: 'models' },
   { label: 'Services', value: 'services' },
-  { label: 'Discover', value: 'discover' }
+  { label: 'Discover', value: 'discover' },
 ]
 
 function goMain() {
-  router.push({ name: 'Main' }) // or path: '/main'
+  router.push({ name: 'Main' })
 }
 
-function logout() {
+function goAccount() {
+  router.push({ name: 'Account' }) // 새로고침 없이 페이지 전환
+}
+
+function onLogout() {
   localStorage.removeItem('jwtToken')
   router.push({ name: 'Login' })
 }
 </script>
 
 <style scoped>
-.header-tabs {
-  min-width: 500px;
-}
-
+.header-tabs { min-width: 500px; }
 .tab-item {
   font-size: 1.25rem;
   font-weight: 600;
@@ -81,7 +90,5 @@ function logout() {
   color: #ccc;
   transition: color 0.2s;
 }
-.v-tab--selected {
-  color: #fff !important;
-}
+.v-tab--selected { color: #fff !important; }
 </style>
