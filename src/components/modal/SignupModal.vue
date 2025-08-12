@@ -1,77 +1,94 @@
 <template>
-  <v-dialog :model-value="open" @update:model-value="close" max-width="400" persistent>
-    <v-card>
-      <v-card-title  style="position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid #eee;">{{ t('label.loginForm.signup') }}</v-card-title>
+  <v-dialog :model-value="open" @update:model-value="close" max-width="440" persistent>
+    <v-card class="modal-card">
+      <!-- 스티키 헤더 -->
+      <v-card-title class="modal-header">
+        {{ t('label.loginForm.signup') }}
+      </v-card-title>
+
       <v-form @submit.prevent="onSignup">
-        <v-card-text style="overflow-y: auto; flex: 1 1 auto; min-height: 0;">
-          <!-- 아이디 입력 및 중복확인 버튼 -->
-          <div class="d-flex mb-2 align-center">
-            <div style="flex:1; display: flex; flex-direction: column;">
-              <v-text-field
-                  v-model="userId"
-                  :label="t('label.loginForm.userId')"
-                  :error="userIdError || userIdLengthError"
-                  ref="userIdInput"
-                  @input="onUserIdInput"
-                  required
-                  class="mr-2"
-                  autocomplete="off"
-              />
-              <!-- 아이디 안내 메시지 -->
-              <div v-if="userIdGuide" class="text-caption" style="color:#e53935; margin-top:-8px; margin-bottom:2px;">
-                {{ t('msg.validation.userIdGuide.1') }}
-              </div>
-              <div v-if="userIdLengthError" class="text-caption" style="color:#e53935; margin-top:-2px; margin-bottom:8px;">
-                {{ t('msg.validation.userIdGuide.2') }}
-              </div>
-            </div>
-            <v-btn size="small"
-                   color="primary"
-                   variant="tonal"
-                   rounded="lg"
-                   class="ml-2"
-                   elevation="2"
-                   @click="onCheckUserId">{{ t('label.signup.duplicationCheck') }}
+        <!-- 스크롤 영역 -->
+        <v-card-text class="scroll-area">
+          <!-- 아이디 + 중복확인 -->
+          <div class="d-flex mb-3 align-center">
+            <v-text-field
+                v-model="userId"
+                :label="t('label.loginForm.userId')"
+                :error="userIdError || userIdLengthError"
+                ref="userIdInput"
+                @input="onUserIdInput"
+                required
+                class="flex-grow-1"
+                variant="outlined"
+                density="comfortable"
+                prepend-inner-icon="mdi-card-account-details-outline"
+                autocomplete="off"
+            />
+            <v-btn
+                size="small"
+                color="primary"
+                variant="tonal"
+                rounded="lg"
+                class="ml-2"
+                elevation="2"
+                @click="onCheckUserId"
+                prepend-icon="mdi-magnify"
+            >
+              {{ t('label.signup.duplicationCheck') }}
             </v-btn>
           </div>
-
-          <!-- 닉네임 입력 및 중복확인 버튼 -->
-          <div class="d-flex mb-2 align-center">
-            <div style="flex:1; display: flex; flex-direction: column;">
-              <v-text-field
-                  v-model="nickname"
-                  :label="t('label.loginForm.nickname')"
-                  :error="nicknameError || nicknameCharError || nicknameLengthError"
-                  ref="nicknameInput"
-                  @update:modelValue="onNicknameUpdate"
-                  required
-                  class="mr-2"
-              />
-              <!-- 닉네임 안내 메시지 -->
-              <div v-if="nicknameCharError" class="text-caption" style="color:#e53935; margin-top:-8px; margin-bottom:2px;">
-                {{ t('msg.validation.nicknameGuide.1') }}
-              </div>
-              <div v-if="nicknameLengthError" class="text-caption" style="color:#e53935; margin-top:-2px; margin-bottom:8px;">
-                {{ t('msg.validation.nicknameGuide.2') }}
-              </div>
-            </div>
-            <v-btn size="small"
-                   color="primary"
-                   variant="tonal"
-                   rounded="lg"
-                   class="ml-2"
-                   elevation="2"
-                   @click="onCheckNickname">{{ t('label.signup.duplicationCheck') }}</v-btn>
+          <div v-if="userIdGuide" class="hint-error">
+            {{ t('msg.validation.userIdGuide.1') }}
+          </div>
+          <div v-if="userIdLengthError" class="hint-error">
+            {{ t('msg.validation.userIdGuide.2') }}
           </div>
 
-          <!-- 이메일 입력란 -->
-          <div class="d-flex mb-2 align-center">
+          <!-- 닉네임 + 중복확인 -->
+          <div class="d-flex mb-3 align-center">
+            <v-text-field
+                v-model="nickname"
+                :label="t('label.loginForm.nickname')"
+                :error="nicknameError || nicknameCharError || nicknameLengthError"
+                ref="nicknameInput"
+                @update:modelValue="onNicknameUpdate"
+                required
+                class="flex-grow-1"
+                variant="outlined"
+                density="comfortable"
+                prepend-inner-icon="mdi-account-outline"
+            />
+            <v-btn
+                size="small"
+                color="primary"
+                variant="tonal"
+                rounded="lg"
+                class="ml-2"
+                elevation="2"
+                @click="onCheckNickname"
+                prepend-icon="mdi-magnify"
+            >
+              {{ t('label.signup.duplicationCheck') }}
+            </v-btn>
+          </div>
+          <div v-if="nicknameCharError" class="hint-error">
+            {{ t('msg.validation.nicknameGuide.1') }}
+          </div>
+          <div v-if="nicknameLengthError" class="hint-error">
+            {{ t('msg.validation.nicknameGuide.2') }}
+          </div>
+
+          <!-- 이메일 -->
+          <div class="d-flex mb-3 align-center">
             <v-text-field
                 v-model="emailId"
                 :label="t('label.loginForm.email.id')"
                 required
                 maxlength="30"
-                style="max-width:100px;"
+                style="max-width:120px;"
+                variant="outlined"
+                density="comfortable"
+                prepend-inner-icon="mdi-email-outline"
                 autocomplete="off"
             />
             <span class="mx-1">@</span>
@@ -80,29 +97,35 @@
                 :readonly="selectedEmailDomain !== t('label.loginForm.email.direct')"
                 required
                 maxlength="30"
-                style="max-width:110px;"
-                autocomplete="off"
+                style="max-width:140px;"
+                variant="outlined"
+                density="comfortable"
                 ref="emailDomainInput"
+                autocomplete="off"
             />
             <v-select
                 v-model="selectedEmailDomain"
                 :items="emailDomainOptions"
-                density="compact"
+                density="comfortable"
                 hide-details
-                style="max-width:130px;"
-                class="ml-3 mb-2"
+                style="max-width:150px;"
+                class="ml-3"
+                variant="outlined"
                 @update:modelValue="onSelectEmailDomain"
             />
           </div>
 
-          <!-- 휴대전화 입력란 -->
-          <div class="d-flex mb-2 align-center">
+          <!-- 휴대전화 -->
+          <div class="d-flex mb-3 align-center">
             <v-text-field
                 v-model="phone1"
                 maxlength="3"
                 :placeholder="t('label.loginForm.phone.guide')"
                 required
-                style="max-width:60px;"
+                style="max-width:70px;"
+                variant="outlined"
+                density="comfortable"
+                prepend-inner-icon="mdi-phone-outline"
                 @input="onPhoneInput('phone1', 3, $event)"
                 ref="phone1Input"
             />
@@ -111,7 +134,9 @@
                 v-model="phone2"
                 maxlength="4"
                 required
-                style="max-width:70px;"
+                style="max-width:90px;"
+                variant="outlined"
+                density="comfortable"
                 @input="onPhoneInput('phone2', 4, $event)"
                 ref="phone2Input"
             />
@@ -120,13 +145,15 @@
                 v-model="phone3"
                 maxlength="4"
                 required
-                style="max-width:70px;"
+                style="max-width:90px;"
+                variant="outlined"
+                density="comfortable"
                 @input="onPhoneInput('phone3', 4, $event)"
                 ref="phone3Input"
             />
           </div>
 
-          <!-- 이름 입력 -->
+          <!-- 이름 -->
           <v-text-field
               v-model="username"
               :label="t('label.loginForm.username')"
@@ -134,53 +161,73 @@
               ref="usernameInput"
               @input="onInput('username')"
               required
+              class="mb-3"
+              variant="outlined"
+              density="comfortable"
+              prepend-inner-icon="mdi-account-badge-outline"
           />
-          <!-- 비밀번호 입력 -->
+
+          <!-- 비밀번호 -->
           <v-text-field
               v-model="password"
               :label="t('label.loginForm.password')"
               :error="passwordError"
               ref="passwordInput"
               @input="onInput('password')"
-              type="password"
+              :type="showPw ? 'text' : 'password'"
               required
+              variant="outlined"
+              density="comfortable"
+              prepend-inner-icon="mdi-lock-outline"
+              :append-inner-icon="showPw ? 'mdi-eye-off' : 'mdi-eye'"
+              @click:append-inner="showPw = !showPw"
+              class="mb-3"
           />
-          <!-- 비밀번호 확인 입력 -->
+          <!-- 비밀번호 확인 -->
           <v-text-field
               v-model="passwordConfirm"
               :label="t('label.loginForm.passwordConfirm')"
               :error="passwordConfirmError"
               ref="passwordConfirmInput"
               @input="onPasswordConfirmInput"
-              type="password"
+              :type="showPw2 ? 'text' : 'password'"
               required
+              variant="outlined"
+              density="comfortable"
+              prepend-inner-icon="mdi-lock-check-outline"
+              :append-inner-icon="showPw2 ? 'mdi-eye-off' : 'mdi-eye'"
+              @click:append-inner="showPw2 = !showPw2"
           />
-          <div v-if="passwordConfirmGuide" class="text-caption" style="color:#e53935;">
-            {{t('msg.validation.passwordNotEqual') }}
+          <div v-if="passwordConfirmGuide" class="hint-error">
+            {{ t('msg.validation.passwordNotEqual') }}
           </div>
         </v-card-text>
-        <v-card-actions style="position: sticky; bottom: 0; z-index: 10; background: #fff; border-top: 1px solid #eee;">
-          <!-- 가입/취소 버튼 -->
-          <v-btn type="submit" color="primary"
-                 :disabled="!isUserIdChecked || !isUserIdAvailable || !isNicknameChecked || !isNicknameAvailable"
-          >{{ t('label.signup.accession') }}
+
+        <!-- 스티키 풋터 -->
+        <v-card-actions class="modal-footer">
+          <v-btn
+              type="submit"
+              color="primary"
+              :disabled="!isUserIdChecked || !isUserIdAvailable || !isNicknameChecked || !isNicknameAvailable"
+          >
+            {{ t('label.signup.accession') }}
           </v-btn>
-          <v-btn text @click="onClickCancel">{{ t('label.cancel') }}</v-btn>
+          <v-btn variant="text" @click="onClickCancel">{{ t('label.cancel') }}</v-btn>
         </v-card-actions>
       </v-form>
     </v-card>
   </v-dialog>
 
+  <!-- 닫기 확인 모달 -->
   <v-dialog v-model="showConfirmClose" max-width="360">
     <v-card>
       <v-card-title class="font-weight-bold">{{ t('msg.closeConfirm.title') }}</v-card-title>
       <v-card-text>
-        {{ t('msg.closeConfirm.content1') }}
-        <br>
-        <span style="color:#e53935;">{{ t('msg.closeConfirm.content2') }}</span>
+        {{ t('msg.closeConfirm.content1') }}<br>
+        <span class="error--text">{{ t('msg.closeConfirm.content2') }}</span>
       </v-card-text>
       <v-card-actions class="justify-end">
-        <v-btn text @click="showConfirmClose = false">{{ t('msg.closeConfirm.continue') }}</v-btn>
+        <v-btn variant="text" @click="showConfirmClose = false">{{ t('msg.closeConfirm.continue') }}</v-btn>
         <v-btn color="primary" @click="onConfirmClose">{{ t('label.confirm') }}</v-btn>
       </v-card-actions>
     </v-card>
@@ -237,6 +284,9 @@ const alertStore = useAlertStore()
 
 const isComposing = ref(false)
 
+const showPw = ref(false)
+const showPw2 = ref(false)
+
 // 아이디 입력 이벤트: 영어 소문자, 숫자만, 4~16자
 function onUserIdInput(e) {
   const value = e.target.value.replace(/[^a-z0-9]/g, '')
@@ -267,7 +317,6 @@ function onNicknameUpdate(val) {
   isNicknameAvailable.value = false
 }
 
-// 조합 이벤트 리스너 (setup 내에서)
 onMounted(() => {
   const input = nicknameInput.value?.$el?.querySelector('input')
   if (input) {
@@ -458,7 +507,6 @@ async function onSignup() {
       email: emailId.value && emailDomain.value ? `${emailId.value}@${emailDomain.value}` : '',
       phone: [phone1.value, phone2.value, phone3.value].join('-'),
     })
-    // alertStore.show(t('msg.signup.signupSuccess'))
     alertStore.show(t('msg.signup.signupSuccess'), 'success')
     close()
   } catch (e) {
@@ -468,8 +516,6 @@ async function onSignup() {
     } else{
       alertStore.show(errMsg || t('msg.signup.signupFail'), 'error')
     }
-    // alertStore.show(e?.response?.data?.message || t('msg.signup.signupFail'))
-
   }
 }
 
@@ -524,3 +570,61 @@ function onConfirmClose() {
   close()
 }
 </script>
+<style scoped>
+.modal-card {
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: saturate(135%) blur(8px);
+  background-color: rgba(255,255,255,0.86);
+}
+
+/* 다크모드 대응 */
+:deep(.v-theme--dark) .modal-card {
+  background-color: rgba(18,18,18,0.72);
+}
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 14px 20px;
+  font-weight: 700;
+  background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.85));
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+:deep(.v-theme--dark) .modal-header {
+  background: linear-gradient(180deg, rgba(22,22,22,.9), rgba(22,22,22,.85));
+  border-bottom-color: rgba(255,255,255,.08);
+}
+
+.scroll-area {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-top: 14px;
+}
+
+.modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: linear-gradient(0deg, rgba(255,255,255,.95), rgba(255,255,255,.85));
+  border-top: 1px solid rgba(0,0,0,.06);
+}
+:deep(.v-theme--dark) .modal-footer {
+  background: linear-gradient(0deg, rgba(22,22,22,.95), rgba(22,22,22,.85));
+  border-top-color: rgba(255,255,255,.08);
+}
+
+.hint-error {
+  color: #e53935;
+  margin-top: -6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.kakao-image-btn, .v-btn {
+  transition: transform .06s ease;
+}
+.v-btn:hover { transform: translateY(-1px); }
+</style>
+

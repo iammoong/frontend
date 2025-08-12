@@ -1,14 +1,104 @@
 {
   "label": {
-    "userId": "User ID",
-    "password": "Password",
-    "username": "Name",
-    "nickname": "Nickname"
+    "subtitle": "Log in securely",
+    "cancel": "Cancel",
+    "next": "Next",
+    "logout": "Log out",
+    "confirm": "Confirm",
+    "close": "Close",
+    "findIdPw": "Find ID/Password",
+    "loginForm": {
+      "login": "Log in",
+      "userId": "User ID",
+      "nickname": "Nickname",
+      "username": "Name",
+      "password": "Password",
+      "passwordConfirm": "Confirm Password",
+      "email": {
+        "id": "Email ID",
+        "domain": "Domain",
+        "direct": "Enter manually",
+        "daum": "daum.net",
+        "naver": "naver.com",
+        "gmail": "gmail.com",
+        "nate": "nate.com",
+        "kakao": "kakao.com"
+      },
+      "phone": {
+        "guide": "010"
+      },
+      "signup": "Sign up",
+      "capslock": "Caps Lock is on."
+    },
+    "signup": {
+      "duplicationCheck": "Check availability",
+      "accession": "Sign up"
+    },
+    "find": {
+      "title": "Find ID / Password",
+      "id": "Find ID",
+      "password": "Find Password",
+      "email": "Find via Email",
+      "phone": "Find via Mobile",
+      "sendCode": "Send verification code",
+      "codeConfirm": "Enter verification code",
+      "sendCodeComplete": "Verification code has been sent.",
+      "sendCodeFail": "Failed to send the verification code.",
+      "codeIncorrect": "The verification code is incorrect.",
+      "codeCheckFail": "Failed to verify the code.",
+      "notExistId": "No registered ID found.",
+      "remainTime": "Time remaining",
+      "expiredTime": "Verification time has expired."
+    }
   },
   "msg": {
-    "emptyLogin": "Please enter your ID and password.",
-    "signupSuccess": "Signup completed!",
-    "userIdDuplicate": "This ID is already in use.",
-    "userIdAvailable": "This ID is available."
+    "login": {
+      "emptyLogin": "Please enter your ID and password.",
+      "emptyUserId": "Please enter your ID.",
+      "invalidLogin": "The ID or password you entered is incorrect."
+    },
+    "validation": {
+      "userIdGuide": {
+        "1": "Only lowercase letters and numbers are allowed.",
+        "2": "ID must be 4–16 characters."
+      },
+      "nicknameGuide": {
+        "1": "Korean, lowercase English letters, and numbers only.",
+        "2": "Nickname must be 2–8 characters."
+      },
+      "usernameGuide": "Korean or lowercase English letters are allowed.",
+      "emptyNickname": "Please enter a nickname.",
+      "emptyUsername": "Please enter your name.",
+      "emptyPassword": "Please enter your password.",
+      "emptyPasswordConfirm": "Please enter password confirmation.",
+      "passwordNotEqual": "Passwords do not match."
+    },
+    "duplication": {
+      "userIdDuplicate": "This ID is already in use.",
+      "userIdAvailable": "This ID is available.",
+      "nicknameDuplicate": "This nickname is already in use.",
+      "nicknameAvailable": "This nickname is available."
+    },
+    "signup": {
+      "signupSuccess": "Sign-up completed!",
+      "signupFail": "Sign-up failed."
+    },
+    "closeConfirm": {
+      "title": "Cancel writing",
+      "content1": "You are still writing.\n\nDo you want to cancel?\n\n",
+      "content2": "(Any content in progress will be cleared.)",
+      "continue": "Keep writing"
+    }
+  },
+  "kakao": {
+    "login": {
+      "loading": "Kakao Login",
+      "confirm": "Checking your account"
+    }
+  },
+  "edit": {
+    "kakaoAccount": {
+      "info": "You cannot edit information for a Kakao login account."
+    }
   }
 }

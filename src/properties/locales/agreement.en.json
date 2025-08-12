@@ -1,0 +1,8 @@
+{
+  "agreement": {
+    "title": "[Required] Consent to the Collection and Use of Personal Information",
+    "content": "1. Items of Personal Information Collected\n- Name, email address, password, mobile phone number\n\n2. Purpose of Collection and Use of Personal Information\n- Membership registration and identity verification\n- Provision of services and user identification\n- Customer support and handling inquiries/complaints\n- Delivery of notices\n\n3. Retention and Use Period of Personal Information\n- We retain your information until you delete your account or until the purposes of collection and use are fulfilled, and it may be retained for a certain period as required by applicable laws.\n\n4. Right to Refuse Consent and Possible Disadvantages\n- You have the right to refuse consent to the collection and use of personal information.\n- However, refusal may restrict membership registration and the use of the service.",
+    "readAndAgree": "I have fully read and understood the above and agree to the collection and use of my personal information.",
+    "checkbox": "Consent to the collection and use of personal information"
+  }
+}

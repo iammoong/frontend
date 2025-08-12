@@ -1,5 +1,6 @@
 {
   "label": {
+    "subtitle": "안전하게 로그인하세요",
     "cancel" : "취소",
     "next" : "다음",
     "logout": "로그아웃",
@@ -90,6 +91,17 @@
       "content1" : "아직 작성중에 있습니다.\n\n작성을 취소하시겠습니까?\n\n",
       "content2" : "(작성중인게 있다면 초기화됩니다.)",
       "continue" : "계속 작성"
+    }
+  },
+  "kakao" :{
+    "login": {
+      "loading" : "카카오 로그인",
+      "confirm" : "계정 확인 중입니다"
+    }
+  },
+  "edit" : {
+    "kakaoAccount" : {
+      "info" : "카카오 로그인 계정은 정보를 수정할 수 없습니다."
     }
   }
 }
