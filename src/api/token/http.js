@@ -12,4 +12,16 @@ http.interceptors.request.use((config) => {
     return config
 })
 
+// 만료/인증실패(401) 공통 처리
+http.interceptors.response.use(
+    (resp) => resp,
+    (error) => {
+        if (error?.response?.status === 401) {
+            localStorage.removeItem('jwtToken')
+            window.location.href = '/login?reason=expired'
+        }
+        return Promise.reject(error)
+    }
+)
+
 export default http
