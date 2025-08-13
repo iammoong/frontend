@@ -1,11 +1,15 @@
 {
   "label": {
-    "subtitle": "Log in securely",
+    "subtitle": "Sign in securely",
     "cancel": "Cancel",
     "next": "Next",
     "logout": "Log out",
     "confirm": "Confirm",
     "close": "Close",
+    "edit": "Edit",
+    "save": "Save",
+    "saveComplete": "Saved.",
+    "deleteAccount": "Delete account",
     "findIdPw": "Find ID/Password",
     "loginForm": {
       "login": "Log in",
@@ -13,7 +17,7 @@
       "nickname": "Nickname",
       "username": "Name",
       "password": "Password",
-      "passwordConfirm": "Confirm Password",
+      "passwordConfirm": "Confirm password",
       "email": {
         "id": "Email ID",
         "domain": "Domain",
@@ -37,15 +41,15 @@
     "find": {
       "title": "Find ID / Password",
       "id": "Find ID",
-      "password": "Find Password",
-      "email": "Find via Email",
-      "phone": "Find via Mobile",
+      "password": "Find password",
+      "email": "Find via email",
+      "phone": "Find via mobile phone",
       "sendCode": "Send verification code",
       "codeConfirm": "Enter verification code",
       "sendCodeComplete": "Verification code has been sent.",
-      "sendCodeFail": "Failed to send the verification code.",
+      "sendCodeFail": "Failed to send verification code.",
       "codeIncorrect": "The verification code is incorrect.",
-      "codeCheckFail": "Failed to verify the code.",
+      "codeCheckFail": "Verification failed.",
       "notExistId": "No registered ID found.",
       "remainTime": "Time remaining",
       "expiredTime": "Verification time has expired."
@@ -55,7 +59,7 @@
     "login": {
       "emptyLogin": "Please enter your ID and password.",
       "emptyUserId": "Please enter your ID.",
-      "invalidLogin": "The ID or password you entered is incorrect."
+      "invalidLogin": "The ID or password is incorrect."
     },
     "validation": {
       "userIdGuide": {
@@ -63,15 +67,22 @@
         "2": "ID must be 4–16 characters."
       },
       "nicknameGuide": {
-        "1": "Korean, lowercase English letters, and numbers only.",
+        "1": "Korean, lowercase letters, and numbers only.",
         "2": "Nickname must be 2–8 characters."
       },
-      "usernameGuide": "Korean or lowercase English letters are allowed.",
+      "usernameGuide": "Korean and lowercase English letters only.",
       "emptyNickname": "Please enter a nickname.",
       "emptyUsername": "Please enter your name.",
-      "emptyPassword": "Please enter your password.",
-      "emptyPasswordConfirm": "Please enter password confirmation.",
+      "emptyPassword": "Please enter a password.",
+      "emptyPasswordConfirm": "Please confirm your password.",
       "passwordNotEqual": "Passwords do not match."
+    },
+    "error": {
+      "loadMe": "Failed to load your information.",
+      "save": "An error occurred while saving.",
+      "changePw": "An error occurred while changing the password.",
+      "checkUserId": "An error occurred while checking the ID.",
+      "checkNickname": "An error occurred while checking the nickname."
     },
     "duplication": {
       "userIdDuplicate": "This ID is already in use.",
@@ -85,20 +96,34 @@
     },
     "closeConfirm": {
       "title": "Cancel writing",
-      "content1": "You are still writing.\n\nDo you want to cancel?\n\n",
+      "content1": "You are still editing.\n\nDo you want to cancel?\n\n",
       "content2": "(Any content in progress will be cleared.)",
-      "continue": "Keep writing"
+      "continue": "Continue editing"
     }
   },
   "kakao": {
     "login": {
       "loading": "Kakao Login",
-      "confirm": "Checking your account"
+      "confirm": "Verifying your account"
     }
   },
   "edit": {
     "kakaoAccount": {
-      "info": "You cannot edit information for a Kakao login account."
+      "info": "Information for Kakao login accounts cannot be edited."
+    },
+    "delete": {
+      "warn": "Are you sure you want to delete this account? All data will be permanently deleted.",
+      "confirm": "To proceed, type \"회원탈퇴\" exactly.",
+      "mismatch": "The input does not match.",
+      "done": "Your account has been deleted. Thank you for using our service.",
+      "fail": "An error occurred while processing the deletion."
     }
+  },
+  "password": {
+    "notice": "For security, please log in again after changing your password.",
+    "changed": "Your password has been changed. Please log in again."
+  },
+  "loading": {
+    "me": "Loading your information..."
   }
 }

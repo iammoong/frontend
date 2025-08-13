@@ -113,13 +113,13 @@
             type="submit"
             :disabled="isKakaoAccount && !editMode"
         >
-          {{ editMode ? tt('label.confirm','저장') : tt('label.edit','수정하기') }}
+          {{ editMode ? t('label.save') : t('label.edit') }}
         </v-btn>
         <v-btn v-if="editMode" variant="text" @click="onCancel">{{ t('label.cancel') }}</v-btn>
       </div>
     </v-form>
 
-    <div v-else class="text-body-2">{{ tt('loading.me','정보를 불러오는 중...') }}</div>
+    <div v-else class="text-body-2">{{ t('loading.me') }}</div>
 
     <!-- 비밀번호 변경 -->
     <v-divider class="my-8"></v-divider>
@@ -144,7 +144,7 @@
           />
           <v-text-field
               v-model="pw.newPassword"
-              :label="tt('label.loginForm.password','비밀번호') + ' (새)'"
+              :label="'(새) ' + t('label.loginForm.password')"
               :type="showNew ? 'text' : 'password'"
               :append-inner-icon="showNew ? 'mdi-eye-off' : 'mdi-eye'"
               @click:append-inner="showNew = !showNew"
@@ -173,7 +173,7 @@
           </div>
         </v-form>
         <div class="text-caption mt-3 opacity-80">
-          {{ tt('password.notice','보안을 위해 비밀번호 변경 후 다시 로그인해 주세요.') }}
+          {{ t('password.notice') }}
         </div>
       </v-card-text>
 
@@ -183,6 +183,16 @@
         </v-alert>
       </v-card-text>
     </v-card>
+
+    <v-divider class="my-8"></v-divider>
+    <div class="d-flex justify-end">
+      <v-btn
+          color="error"
+          variant="flat"
+          @click="onDeleteAccount"
+      >{{ t('label.deleteAccount') }}
+      </v-btn>
+    </div>
 
     <!-- 공통 스낵바 -->
     <v-snackbar v-model="snackbar.open" :timeout="2600">
@@ -196,10 +206,8 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
-// ✅ 기존 API 재사용 + 비번 변경 추가
-import { getMe, updateMe, changePassword } from '@/api/user/me.js'
+import { getMe, updateMe, changePassword, deleteMe } from '@/api/user/me.js'
 
-// ✅ 중복확인은 프로젝트에 이미 있는 것을 재사용 (예: useAxios 훅)
 import { useAxios } from '@/hooks/user/useAxios'
 const { checkUserId, checkNickname } = useAxios()
 
@@ -235,10 +243,10 @@ const showCurrent = ref(false)
 const showNew = ref(false)
 const showConfirm = ref(false)
 
-const reqRule = v => (!!v ? true : t('msg.validation.emptyPassword') || '비밀번호를 입력하세요.')
+const reqRule = v => (!!v ? true : t('msg.validation.emptyPassword'))
 const min8Rule = v => ((v?.length ?? 0) >= 8) || '8자 이상 입력하세요'
 const mixRule = v => /(?=.*[A-Za-z])(?=.*\d).{8,64}/.test(v || '') || '영문과 숫자를 포함해 주세요'
-const confirmRule = v => v === pw.newPassword || (t('msg.validation.passwordNotEqual') || '비밀번호가 일치하지 않습니다.')
+const confirmRule = v => v === pw.newPassword || (t('msg.validation.passwordNotEqual'))
 
 // 공통 스낵바
 const snackbar = reactive({ open: false, message: '' })
@@ -257,7 +265,7 @@ onMounted(async () => {
     })
     Object.assign(form, initial)
   } catch {
-    toast(tt('error.loadMe','내 정보를 불러오지 못했습니다.'))
+    toast(t('msg.error.loadMe'))
   } finally {
     loaded.value = true
   }
@@ -288,7 +296,7 @@ async function onCheckUserId() {
     const { data } = await checkUserId(form.userId.trim())
     toast(t(data ? 'msg.duplication.userIdDuplicate' : 'msg.duplication.userIdAvailable'))
   } catch {
-    toast(tt('error.checkUserId','아이디 중복확인 중 오류가 발생했습니다.'))
+    toast(t('msg.error.checkUserId'))
   }
 }
 async function onCheckNickname() {
@@ -296,7 +304,7 @@ async function onCheckNickname() {
     const { data } = await checkNickname(form.nickname.trim())
     toast(t(data ? 'msg.duplication.nicknameDuplicate' : 'msg.duplication.nicknameAvailable'))
   } catch {
-    toast(tt('error.checkNickname','닉네임 중복확인 중 오류가 발생했습니다.'))
+    toast(t('msg.error.checkNickname'))
   }
 }
 
@@ -337,10 +345,10 @@ async function onPrimary() {
     }
     if (data?.token) localStorage.setItem('jwtToken', data.token)
 
-    toast(tt('label.saveComplete','저장되었습니다.'))
+    toast(t('label.saveComplete'))
     editMode.value = false
   } catch (e) {
-    const msg = e?.response?.data?.message || tt('error.save','저장 중 오류가 발생했습니다.')
+    const msg = e?.response?.data?.message || t('msg.error.save')
     toast(msg)
   }
 }
@@ -353,25 +361,47 @@ function resetPw() {
 }
 async function onChangePassword() {
   if (!pw.currentPassword || !pw.newPassword || !pw.newPasswordConfirm) {
-    toast(t('msg.validation.emptyPassword') || '비밀번호를 입력하세요.')
+    toast(t('msg.validation.emptyPassword'))
     return
   }
   if (pw.newPassword !== pw.newPasswordConfirm) {
-    toast(t('msg.validation.passwordNotEqual') || '비밀번호가 일치하지 않습니다.')
+    toast(t('msg.validation.passwordNotEqual'))
     return
   }
   pwLoading.value = true
   try {
     await changePassword({ currentPassword: pw.currentPassword, newPassword: pw.newPassword })
-    toast(tt('password.changed','비밀번호가 변경되었습니다. 다시 로그인해 주세요.'))
+    toast(t('password.changed'))
     localStorage.removeItem('jwtToken')
     setTimeout(() => router.replace({ name: 'Login' }), 800)
   } catch (e) {
-    const msg = e?.response?.data?.message || tt('error.changePw','비밀번호 변경 중 오류가 발생했습니다.')
+    const msg = e?.response?.data?.message || t('msg.error.changePw')
     toast(msg)
   } finally {
     pwLoading.value = false
     resetPw()
+  }
+}
+
+// 회원탈퇴
+async function onDeleteAccount() {
+  const warn = t('edit.delete.warn')
+  if (!confirm(warn)) return
+
+  const input = prompt(t('edit.delete.confirm'))
+  if (input !== t('label.deleteAccount')) {
+    toast(t('edit.delete.mismatch'))
+    return
+  }
+
+  try {
+    await deleteMe()
+    toast(t('edit.delete.done'))
+    localStorage.removeItem('jwtToken')
+    setTimeout(() => router.replace({name: 'Login'}), 800)
+  } catch (e) {
+    const msg = e?.response?.data?.message || t('account.delete.fail')
+    toast(msg)
   }
 }
 </script>

@@ -14,3 +14,8 @@ export function updateMe(payload) {
 export function changePassword(payload) {
     return http.put('/auth/me/password', payload)
 }
+
+// 내 정보 삭제(회원탈퇴)
+export function deleteMe() {
+    return http.delete('/auth/me/delete')
+}
