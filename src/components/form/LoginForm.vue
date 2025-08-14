@@ -216,8 +216,12 @@ function onUserIdInput(e) {
 }
 
 async function onLogin() {
-  if (!userId.value || !password.value) {
+  if (!userId.value) {
     alertStore.show(t('msg.login.emptyLogin'), 'error')
+    return
+  }
+  if (!password.value) {
+    alertStore.show(t('msg.login.emptyPassword'), 'error')
     return
   }
   loading.value = true

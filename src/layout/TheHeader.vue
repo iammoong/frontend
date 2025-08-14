@@ -36,6 +36,14 @@
     <!-- Right: Session countdown -->
     <CountdownLabel mode="idle" class="mr-2" :minutes="30" :warn-threshold-ms="2 * 60 * 1000" @expired="handleExpired" />
 
+    <div class="d-flex align-center ml-3 mr-3 user-badge" @click="goAccount" style="cursor: pointer;">
+      <v-avatar size="28" class="mr-2" :color="!profileSrc ? 'grey-lighten-2' : undefined">
+        <v-img v-if="profileSrc" :src="profileSrc" alt="프로필 이미지" cover />
+        <v-icon v-else>mdi-account-circle</v-icon>
+      </v-avatar>
+      <span class="text-body-2 font-weight-medium">{{ displayName }}님</span>
+    </div>
+
     <!-- Settings menu -->
     <v-menu location="bottom end" offset="8">
       <template #activator="{ props }">
@@ -45,7 +53,7 @@
       </template>
       <v-list density="comfortable" min-width="180">
         <v-list-subheader>계정</v-list-subheader>
-        <v-list-item @click="goAccount" prepend-icon="mdi-account-circle-outline" title="내 정보"/>
+        <v-list-item @click="goAccount" prepend-icon="mdi-account-circle-outline" :title="t('edit.myAccount')"/>
         <v-divider/>
         <v-list-item @click="onLogout" prepend-icon="mdi-logout" :title="t('label.logout')"/>
       </v-list>
@@ -54,14 +62,53 @@
 </template>
 
 <script setup>
-import {ref, watchEffect} from 'vue'
+import {ref, watchEffect, onMounted, computed, onBeforeUnmount} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import {useI18n} from 'vue-i18n'
+
+import { getMe } from '@/api/user/me.js'
 import CountdownLabel from '@/components/common/CountdownLabel.vue'
 
 const {t} = useI18n()
 const router = useRouter()
 const route = useRoute()
+const me = ref(null)
+
+async function fetchMe() {
+  try {
+    const { data } = await getMe()
+    me.value = data
+  } catch (e) {
+    // 비로그인/만료 등은 무시
+  }
+}
+
+const displayName = computed(() =>
+    me.value?.nickname || me.value?.username || me.value?.userId || ''
+)
+
+const profileSrc = computed(() => {
+  const url = me.value?.profileImageUrl
+  if (!url) return ''
+  const base = import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || ''
+  const path = url.startsWith('/') ? url : `/${url}`
+  return `${base}${path}`
+})
+
+function handleProfileUpdated(e) {
+  // AccountView에서 보낸 detail(갱신된 사용자 DTO)이 있으면 즉시 반영
+  if (e?.detail) me.value = e.detail
+  else fetchMe()
+}
+
+onMounted(() => {
+  fetchMe()
+  window.addEventListener('profile:updated', handleProfileUpdated)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('profile:updated', handleProfileUpdated)
+})
 
 const menus = [
   {label: 'Home', value: 'home'},

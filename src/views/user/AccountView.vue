@@ -3,25 +3,64 @@
     <!-- 페이지 타이틀 -->
     <div class="d-flex align-center mb-6">
       <v-icon size="22" class="mr-2">mdi-card-account-details-outline</v-icon>
-      <h2 class="text-h5 font-weight-bold m-0">{{ tt('label.myInfo', '내 정보') }}</h2>
+      <h2 class="text-h5 font-weight-bold m-0">{{ t('label.myInfo') }}</h2>
+    </div>
+
+    <!-- 프로필 아바타 + 업로드 -->
+    <v-alert
+        v-if="isKakaoAccount && !editMode"
+        type="info"
+        variant="tonal"
+        border="start"
+        class="mb-4"
+    >
+      {{ t('edit.kakaoAccount.info') }}
+    </v-alert>
+    <div class="d-flex align-center mb-6" v-if="!isKakaoAccount">
+
+      <v-avatar size="96" class="mr-4" variant="tonal">
+        <v-img
+            :src="displayProfileImageUrl"
+            :alt="form.nickname || form.username || form.userId"
+            cover
+        />
+      </v-avatar>
+
+      <div class="d-flex flex-column">
+        <div class="text-body-2 mb-2">{{ t('edit.image.title') }}</div>
+        <div class="d-flex align-center">
+          <v-file-input
+              v-model="selectedFile"
+              accept="image/*"
+              prepend-icon="mdi-camera"
+              hide-details
+              density="compact"
+              style="max-width: 300px;"
+              @change="onChangeFile"
+          >
+            <!-- 파일명 표시 숨김 -->
+            <template #selection></template>
+          </v-file-input>
+
+          <v-btn
+              class="ml-2"
+              color="primary"
+              variant="elevated"
+              size="small"
+              :disabled="!selectedFile"
+              @click="onUpload"
+          >
+            {{ t('edit.image.upload') }}
+          </v-btn>
+        </div>
+        <div class="text-caption mt-1">{{ t('edit.image.info') }}</div>
+      </div>
     </div>
 
     <!-- 프로필 카드 -->
     <v-card class="glass-card mb-8" elevation="6" border>
       <v-card-text class="pb-0">
         <v-form v-if="loaded" @submit.prevent="onPrimary">
-          <!-- 카카오 계정 안내 -->
-          <v-alert
-              v-if="isKakaoAccount && !editMode"
-              type="info"
-              variant="tonal"
-              border="start"
-              class="mb-4"
-          >
-            {{ t('edit.kakaoAccount.info') }}
-          </v-alert>
-
-          <!-- 폼: 2열 그리드 (md~) -->
           <v-row dense>
             <!-- 아이디 + 중복확인 -->
             <v-col cols="12" md="6">
@@ -151,44 +190,55 @@
       <v-card-text>
         <template v-if="!isKakaoAccount">
           <v-form @submit.prevent="onChangePassword">
-            <v-row dense>
-              <v-col cols="12" md="6">
+            <v-row dense class="pw-stack">
+              <!-- 기존 비밀번호 -->
+              <v-col cols="12" class="mb-3">
                 <v-text-field
                     v-model="pw.currentPassword"
                     :label="t('label.loginForm.password')"
                     :type="showCurrent ? 'text' : 'password'"
+                    prepend-inner-icon="mdi-lock-outline"
                     :append-inner-icon="showCurrent ? 'mdi-eye-off' : 'mdi-eye'"
                     @click:append-inner="showCurrent = !showCurrent"
                     :rules="[reqRule]"
                     autocomplete="current-password"
                     variant="outlined"
                     density="comfortable"
+                    hide-details="auto"
                 />
               </v-col>
-              <v-col cols="12" md="6">
+
+              <!-- 새 비밀번호 -->
+              <v-col cols="12" class="mb-3">
                 <v-text-field
                     v-model="pw.newPassword"
-                    :label="'(새) ' + t('label.loginForm.password')"
+                    :label="t('label.loginForm.newPassword')"
                     :type="showNew ? 'text' : 'password'"
+                    prepend-inner-icon="mdi-lock-check-outline"
                     :append-inner-icon="showNew ? 'mdi-eye-off' : 'mdi-eye'"
                     @click:append-inner="showNew = !showNew"
                     :rules="[reqRule, min8Rule, mixRule]"
                     autocomplete="new-password"
                     variant="outlined"
                     density="comfortable"
+                    hide-details="auto"
                 />
               </v-col>
-              <v-col cols="12" md="6">
+
+              <!-- 새 비밀번호 확인 -->
+              <v-col cols="12">
                 <v-text-field
                     v-model="pw.newPasswordConfirm"
                     :label="t('label.loginForm.passwordConfirm')"
                     :type="showConfirm ? 'text' : 'password'"
+                    prepend-inner-icon="mdi-lock-check-outline"
                     :append-inner-icon="showConfirm ? 'mdi-eye-off' : 'mdi-eye'"
                     @click:append-inner="showConfirm = !showConfirm"
                     :rules="[reqRule, confirmRule]"
                     autocomplete="new-password"
                     variant="outlined"
                     density="comfortable"
+                    hide-details="auto"
                 />
               </v-col>
             </v-row>
@@ -233,10 +283,10 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted } from 'vue'
+import { reactive, ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { getMe, updateMe, changePassword, deleteMe } from '@/api/user/me.js'
+import { getMe, updateMe, changePassword, deleteMe, uploadProfileImage } from '@/api/user/me.js'
 import { useAxios } from '@/hooks/user/useAxios'
 const { checkUserId, checkNickname } = useAxios()
 
@@ -256,7 +306,10 @@ const form = reactive({
 
 const isKakaoAccount = computed(() => !!form.kakaoId)
 
-// ====== 중복확인 / 유효성 ======
+// 이미지 업로드
+const selectedFile = ref(null)
+
+// 중복확인 / 유효성
 const userIdCharWarn = ref(false)
 const userIdLenWarn = ref(false)
 const userIdInvalid = computed(() => userIdCharWarn.value || userIdLenWarn.value)
@@ -280,6 +333,74 @@ const confirmRule = v => v === pw.newPassword || (t('msg.validation.passwordNotE
 // 공통 스낵바
 const snackbar = reactive({ open: false, message: '' })
 const toast = (m) => { snackbar.open = true; snackbar.message = m }
+
+// 선택 파일 미리보기 URL
+const previewUrl = ref('')
+let previewObjectUrl = ''  // revoke를 위해 원본 보관
+
+// 기존 서버 이미지 URL을 계산하는 profileImageUrl가 이미 있음.
+// 미리보기 우선 노출을 위해 결합 계산식 추가
+const displayProfileImageUrl = computed(() => {
+  return previewUrl.value || profileImageUrl.value
+})
+
+onBeforeUnmount(() => {
+  if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl)
+})
+
+const profileImageUrl = computed(() => {
+  if (initial.value?.profileImageUrl) {
+    const base = import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || ''
+    const path = initial.value.profileImageUrl.startsWith('/')
+        ? initial.value.profileImageUrl
+        : `/${initial.value.profileImageUrl}`
+    return `${base}${path}`
+  }
+  return ''
+})
+
+onMounted(async () => {
+  const { data } = await getMe()
+  initial.value = data
+  form.value = { ...data }
+  loaded.value = true
+})
+
+function onChangeFile() {
+  // 선택 시 가벼운 클라이언트 검증
+  const f = selectedFile.value
+  if (!f) return
+  if (!f.type?.startsWith('image/')) {
+    toast(t('edit.image.warn.1'))
+    selectedFile.value = null
+    return
+  }
+  if (f.size > 5 * 1024 * 1024) {
+    toast(t('edit.image.warn.2'))
+    selectedFile.value = null
+    return
+  }
+}
+
+async function onUpload() {
+  try {
+    if (!selectedFile.value) return
+    const { data } = await uploadProfileImage(selectedFile.value)
+    initial.value = data
+    form.value = { ...data }
+
+    // 미리보기 정리
+    if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl)
+    previewObjectUrl = ''
+    previewUrl.value = ''
+    selectedFile.value = null
+
+    // 헤더 즉시 반영(전역 이벤트)
+    window.dispatchEvent(new CustomEvent('profile:updated', { detail: data }))
+  } catch (e) {
+    alert(e?.response?.data?.message || '업로드에 실패했습니다.')
+  }
+}
 
 onMounted(async () => {
   try {
