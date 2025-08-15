@@ -34,15 +34,35 @@
     <v-spacer/>
 
     <!-- Right: Session countdown -->
-    <CountdownLabel mode="idle" class="mr-2" :minutes="30" :warn-threshold-ms="2 * 60 * 1000" @expired="handleExpired" />
+    <CountdownLabel mode="idle" class="mr-2" :minutes="30" :warn-threshold-ms="2 * 60 * 1000" @expired="handleExpired"/>
 
     <div class="d-flex align-center ml-3 mr-3 user-badge" @click="goAccount" style="cursor: pointer;">
       <v-avatar size="28" class="mr-2" :color="!profileSrc ? 'grey-lighten-2' : undefined">
-        <v-img v-if="profileSrc" :src="profileSrc" alt="프로필 이미지" cover />
+        <v-img v-if="profileSrc" :src="profileSrc" alt="프로필 이미지" cover/>
         <v-icon v-else>mdi-account-circle</v-icon>
       </v-avatar>
       <span class="text-body-2 font-weight-medium">{{ displayName }}님</span>
     </div>
+
+    <!-- Chat Button -->
+    <v-badge
+        class="mr-1"
+        :model-value="chat.unreadCount > 0"
+        :content="chat.unreadCount > 99 ? '99+' : chat.unreadCount"
+        color="error"
+        bordered
+    >
+      <v-btn
+          icon
+          variant="text"
+          :ripple="false"
+          aria-label="채팅 열기"
+          aria-haspopup="dialog"
+          @click="openChat"
+      >
+        <v-icon>mdi-chat-outline</v-icon>
+      </v-btn>
+    </v-badge>
 
     <!-- Settings menu -->
     <v-menu location="bottom end" offset="8">
@@ -66,8 +86,16 @@ import {ref, watchEffect, onMounted, computed, onBeforeUnmount} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import {useI18n} from 'vue-i18n'
 
-import { getMe } from '@/api/user/me.js'
+import {getMe} from '@/api/user/me.js'
 import CountdownLabel from '@/components/common/CountdownLabel.vue'
+import {useChatStore} from '@/store/chat/chat.js'
+
+const chat = useChatStore()
+
+function openChat() {
+  if (!chat.connected) chat.connect()
+  chat.openModal()
+}
 
 const {t} = useI18n()
 const router = useRouter()
@@ -76,7 +104,7 @@ const me = ref(null)
 
 async function fetchMe() {
   try {
-    const { data } = await getMe()
+    const {data} = await getMe()
     me.value = data
   } catch (e) {
     // 비로그인/만료 등은 무시
@@ -144,6 +172,11 @@ function goAccount() {
 }
 
 function onLogout() {
+  try {
+    chat.closeModal()
+    if (chat.disconnect) chat.disconnect() // 스토어에 disconnect 구현되어 있으면 호출
+  } catch {
+  }
   localStorage.removeItem('jwtToken')
   router.push({name: 'Login'})
 }

@@ -18,6 +18,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css'
 
+if (typeof global === 'undefined') { window.global = window }
 
 // 응답 에러 인터셉터 등록 (전역 에러 처리)
 // 전역 응답 인터셉터: 에러 라우팅
