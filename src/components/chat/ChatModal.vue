@@ -51,12 +51,10 @@
                 >
                   <template #prepend>
                     <v-avatar size="40">
-                      <img
-                          v-if="u.profileImageId"
-                          :src="imgUrl(u.profileImageId)"
-                          alt="avatar"
-                      />
-                      <v-icon v-else>mdi-account-circle</v-icon>
+                      <v-img v-if="u?.profileImageId"
+                             :src="imgUrl(u.profileImageId)" cover
+                             @error="() => (u.profileImageId = null)" />
+                      <v-icon v-else>mdi-account</v-icon>
                     </v-avatar>
                   </template>
 
@@ -66,6 +64,14 @@
                   <v-list-item-subtitle class="email text-truncate">
                     {{ u.email }}
                   </v-list-item-subtitle>
+                  <template #append>
+                    <v-badge
+                        v-if="chat.unreadByUser?.[u.id] > 0"
+                        :content="chat.unreadByUser[u.id]"
+                        color="error"
+                        inline
+                    />
+                  </template>
                 </v-list-item>
               </v-slide-y-transition>
             </v-list>
@@ -93,7 +99,7 @@
                   <div
                       v-for="m in chat.messages[roomId]"
                       :key="m.id"
-                      :class="m.senderId === chat.currentRoom.meId ? 'row me' : 'row other'"
+                      :class="['msg-row', isMine(m) ? 'me' : 'other']"
                   >
                     <div class="bubble">
                       <div class="sender" v-if="m.senderId !== chat.currentRoom.meId">
@@ -120,7 +126,9 @@
                   rounded
                   hide-details
                   :placeholder="t('chat.enterMessage')"
-                  @keydown.enter.exact.prevent="doSend"
+                  @compositionstart="isComposing = true"
+                  @compositionend="onCompositionEnd"
+                  @keydown.enter.exact.prevent="onEnter"
               >
                 <template #append-inner>
                   <v-btn icon size="small" @click="doSend" :disabled="!draft.trim()">
@@ -176,6 +184,7 @@ function doSend() {
   draft.value = ''
   nextTick(scrollToBottom)
 }
+
 function scrollToBottom() {
   const el = scrollArea.value
   if (!el) return
@@ -184,6 +193,34 @@ function scrollToBottom() {
 function formatTime(iso) {
   return new Date(iso).toLocaleTimeString()
 }
+
+function isMine(m) {
+  // 백엔드가 sender_id로 줄 수도 있어 보정
+  const sender = m.senderId ?? m.sender_id
+  const myId = chat.currentUser?.id ?? chat.currentRoom?.meId
+  return Number(sender) === Number(myId)
+}
+
+const isComposing = ref(false)
+let sendLock = false  // 아주 짧은 시간 중복 방지(디바운스 겸용)
+
+function onCompositionEnd() {
+  isComposing.value = false
+}
+
+function onEnter(e) {
+  // 한글 조합 중이면 전송 금지
+  if (isComposing.value || e.isComposing) return
+  // 아주 짧은 시간 중복 호출 방지
+  if (sendLock) return
+  sendLock = true
+  doSend()
+  setTimeout(() => (sendLock = false), 120) // 100~150ms 권장
+}
+
+const targetUser = computed(() =>
+    chat.users.find(u => u.id === chat.currentRoom?.otherUserId)
+)
 
 let l = null
 watch(q, (val) => {
@@ -240,7 +277,7 @@ watch(() => chat.messages[roomId.value]?.length, () => nextTick(scrollToBottom))
 }
 .empty { color:#6b7280; padding:12px; }
 
-.row { display:flex; margin: 8px 0; }
+.msg-row { display:flex; width: 100%;  margin: 8px 0; }
 .me { justify-content:flex-end; }
 .other { justify-content:flex-start; }
 

@@ -28,3 +28,7 @@ export function uploadProfileImage(file) {
 export function deleteMe() {
     return http.delete('/auth/me/delete')
 }
+
+export function getUserById(id) {
+    return http.get(`/auth/${id}`)
+}

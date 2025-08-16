@@ -27,9 +27,11 @@ start()
 const chat = useChatStore()
 // 연결을 레이아웃에서 1회만 수행 (중복 연결 방지)
 onMounted(() => {
-  chat.connect()
+  if (localStorage.getItem('jwtToken')) {
+    chat.connect()
+  }
 })
 onBeforeUnmount(() => {
-  if (chat?.disconnect) chat.disconnect()
+  chat.disconnect?.()
 })
 </script>

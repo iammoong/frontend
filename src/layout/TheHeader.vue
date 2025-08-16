@@ -174,6 +174,7 @@ function goAccount() {
 function onLogout() {
   try {
     chat.closeModal()
+    chat.reset()
     if (chat.disconnect) chat.disconnect() // 스토어에 disconnect 구현되어 있으면 호출
   } catch {
   }
