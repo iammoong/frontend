@@ -94,7 +94,7 @@ const chat = useChatStore()
 
 function openChat() {
   if (!chat.connected) chat.connect()
-  chat.openModal()
+  chat.openHome()
 }
 
 const {t} = useI18n()

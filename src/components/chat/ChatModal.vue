@@ -83,7 +83,14 @@
               <template v-if="chat.currentRoom">
                 <div class="d-flex align-center">
                   <v-avatar size="28" class="mr-2" style="background:#eef2ff;">
-                    <v-icon>mdi-account</v-icon>
+                    <v-img
+                        v-if="targetUser?.profileImageId"
+                        :src="imgUrl(targetUser.profileImageId)"
+                        :alt="(targetUser?.nickname || targetUser?.username) + ' avatar'"
+                        cover
+                        @error="onAvatarError"
+                    />
+                    <v-icon v-else>mdi-account</v-icon>
                   </v-avatar>
                   <strong class="text-subtitle-2">{{ targetUserName }}</strong>
                 </div>
@@ -227,6 +234,11 @@ watch(q, (val) => {
   if (l) clearTimeout(l)
   l = setTimeout(() => chat.refreshUsers({ q: val, limit: 50 }), 300)
 })
+
+function onAvatarError() {
+  const u = targetUser.value
+  if (u) u.profileImageId = null   // 깨진 이미지 → 아이콘 폴백
+}
 
 watch(() => chat.messages[roomId.value]?.length, () => nextTick(scrollToBottom))
 </script>

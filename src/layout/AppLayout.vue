@@ -4,11 +4,24 @@
     <v-main>
       <router-view />
     </v-main>
-    <ChatModal
-        :model-value="chat.isOpen"
-        @update:model-value="(v) => v ? chat.openModal() : chat.closeModal()"
-    />
+
     <TheFooter/>
+    <!-- 채팅 목록 모달 -->
+    <ChatHomeModal
+        v-model="chat.isHomeOpen"
+        @open-with="(userId) => chat.openWindowWith(userId)"
+    />
+
+    <!-- 개별 대화창들 -->
+    <ChatWindow
+        v-for="(w, i) in chat.windows"
+        :key="w.roomId"
+        v-model="w.open"
+        :room-id="w.roomId"
+        :other-user-id="w.otherUserId"
+        :offset="i"
+        @close="chat.closeWindow(w.roomId)"
+    />
   </v-app>
 </template>
 
@@ -16,6 +29,8 @@
 import TheHeader from '@/layout/TheHeader.vue'
 import { useIdleLogout } from '@/hooks/session/useIdleLogout.js'
 import TheFooter from '@/layout/TheFooter.vue'
+import ChatWindow from '@/components/chat/ChatWindow.vue'
+import ChatHomeModal from '@/components/chat/ChatHomeModal.vue'
 import ChatModal from '@/components/chat/ChatModal.vue'
 import { useChatStore } from '@/store/chat/chat.js'
 

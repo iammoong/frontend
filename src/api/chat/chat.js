@@ -17,7 +17,10 @@ export const markRead = (roomId) =>
 export const fetchUnreadCount = () =>
     http.get('/api/chat/unread/count').then(r => r.data)
 
-export const fetchUnreadBySender = () =>
-    http.get('/api/chat/unread/by-sender').then(r => r.data)
+ export const fetchUnreadBySender = () =>
+     http.get('/api/chat/unread/by-sender').then(r => r.data)
+// 나의 채팅방 목록
+export const fetchMyRooms = ({limit = 50} = {}) =>
+    http.get('/api/chat/rooms/my', {params: {limit}}).then(r => r.data)
 
 

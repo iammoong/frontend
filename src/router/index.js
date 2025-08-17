@@ -6,6 +6,7 @@ import Main from '@/views/main/Main.vue'
 import AccountView from '@/views/user/AccountView.vue'
 import ErrorPage from '@/views/error/ErrorPageView.vue'
 import KakaoCallback from '@/views/kakao/KakaoCallback.vue'
+import ChatHome from '@/views/chat/ChatHomeView.vue'
 
 import api from '@/api/token/http'
 import {jwtDecode} from 'jwt-decode'
@@ -23,7 +24,8 @@ const routes = [
         component: AppLayout,
         children: [
             {path: 'main', name: 'Main', component: Main},
-            {path: 'account', name: 'Account', component: AccountView}, // 내정보
+            {path: 'account', name: 'Account', component: AccountView},
+            { path: 'chats', name: 'Chats', component: ChatHome },
         ],
     },
 
