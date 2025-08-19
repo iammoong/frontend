@@ -7,7 +7,13 @@
 
     <TheFooter/>
     <!-- 채팅 목록 모달 -->
-    <ChatHomeModal
+<!--    <ChatHomeModal-->
+<!--        v-model="chat.isHomeOpen"-->
+<!--        @open-with="(userId) => chat.openWindowWith(userId)"-->
+<!--    />-->
+
+    <!-- 채팅 홈 모달 -->
+    <ChatHomeView
         v-model="chat.isHomeOpen"
         @open-with="(userId) => chat.openWindowWith(userId)"
     />
@@ -31,6 +37,7 @@ import { useIdleLogout } from '@/hooks/session/useIdleLogout.js'
 import TheFooter from '@/layout/TheFooter.vue'
 import ChatWindow from '@/components/chat/ChatWindow.vue'
 import ChatHomeModal from '@/components/chat/ChatHomeModal.vue'
+import ChatHomeView from '@/views/chat/ChatHomeView.vue'
 import ChatModal from '@/components/chat/ChatModal.vue'
 import { useChatStore } from '@/store/chat/chat.js'
 

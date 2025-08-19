@@ -269,7 +269,7 @@ watch(() => msgs.value.length, () => nextTick(scrollToBottom))
 }
 
 .message-row {
-  width: 100%;
+  max-width: calc(100% - 72px);
 }
 
 .message-wrap {
@@ -286,14 +286,17 @@ watch(() => msgs.value.length, () => nextTick(scrollToBottom))
   align-items: flex-start; /* 좌측 정렬 */
 }
 
-.bubble {
+.message-wrap .bubble{
+  display: inline-block;
+  max-width: 100%;           /* 한 줄 최대폭 (상황 따라 65~80% 조정) */
   padding: 8px 12px;
   border-radius: 14px;
   line-height: 1.45;
-  word-break: break-word;
-  white-space: pre-wrap;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+  white-space: pre-wrap;    /* 개행/공백 유지 */
+  word-break: keep-all;     /* 한글은 단어 단위로만 줄바꿈 */
+  overflow-wrap: anywhere;  /* 긴 영어/URL만 강제 줄바꿈 허용 */
 }
+
 
 /* 내 버블: 오른쪽, 파란 톤 */
 .message-row.mine .bubble {

@@ -58,12 +58,30 @@ export const useChatStore = defineStore('chat', () => {
                 currentUser.value = me
 
                 const sub = client.value.subscribe(`/topic/notify.${me.id}`, async frame => {
-                    const evt = JSON.parse(frame.body) // {type, total, roomId, senderId, bySender}
-                    unreadCount.value = evt.total
-                    hasUnread.value = evt.total > 0
-                    if (evt.senderId != null && evt.bySender != null) {
+                    const evt = JSON.parse(frame.body) // { type, total, roomId, senderId, bySender }
+                    const myId = currentUser.value?.id ?? me.id
+
+                    // 1) 내가 보낸 이벤트면 카운트/배지 갱신 금지
+                    if (evt.senderId === myId) return
+
+                    // 2) 현재 그 방을 보고 있으면 즉시 0으로(서버 읽음 동기화는 선택)
+                    const viewing = isHomeOpen.value && currentRoom.value?.id === evt.roomId
+                    if (viewing && evt.senderId != null) {
+                        unreadByUser[evt.senderId] = 0
+                        // 선택: 서버와 동기화
+                        try {
+                            await markRead(evt.roomId)
+                        } catch {
+                        }
+                    } else if (evt.senderId != null && typeof evt.bySender === 'number') {
+                        // 3) 그 외에는 서버 집계값으로 치환(증분 X)
                         unreadByUser[evt.senderId] = evt.bySender
                     }
+
+                    // 총계는 서버 집계값으로 반영
+                    unreadCount.value = evt.total
+                    hasUnread.value = evt.total > 0
+
                     // 목록에 없는 새 DM 발신자는 실시간으로 추가
                     const exists = users.value.some(u => u.id === evt.senderId)
                     if (!exists) {
@@ -106,7 +124,10 @@ export const useChatStore = defineStore('chat', () => {
     async function refreshUnreadBySender() {
         const list = await fetchUnreadBySender() // [{userId, count}]
         Object.keys(unreadByUser).forEach(k => delete unreadByUser[k])
-        list.forEach(({userId, count}) => unreadByUser[userId] = count)
+        const myId = currentUser.value?.id
+        list.forEach(({userId, count}) => {
+            if (userId !== myId) unreadByUser[userId] = count
+        })
     }
 
     async function openRoomWith(userId) {
@@ -126,7 +147,7 @@ export const useChatStore = defineStore('chat', () => {
         if (!client.value || !connected.value) return
         if (subscriptions[roomId]) return
 
-        client.value.subscribe(`/topic/chat.room.${roomId}`, (frame) => {
+        const sub = client.value.subscribe(`/topic/chat.room.${roomId}`, (frame) => {
             const m = JSON.parse(frame.body)
             const rid = Number(m.roomId ?? m.room_id ?? roomId)
             const sender = Number(m.senderId ?? m.sender_id)
@@ -136,33 +157,22 @@ export const useChatStore = defineStore('chat', () => {
             if (!messages[rid]) messages[rid] = []
             messages[rid].push(m)
 
+            const activeWindow = windows.some(w => w.roomId === rid && w.open)
+            const viewingCurrent = isHomeOpen.value && currentRoom.value?.id === rid
+
             if (!isMine) {
-                // 창/현재방이 활성 상태가 아닐 때만 배지/알림
-                const activeWindow = windows.some(w => w.roomId === rid && w.open)
-                const viewingCurrent = isHomeOpen.value && currentRoom.value?.id === rid
-                if (!activeWindow && !viewingCurrent) {
+                if (viewingCurrent) {
+                    // 보고 있는 방이면 즉시 읽음 처리 + 0으로
+                    markRead(rid).then(refreshUnread).catch(() => {
+                    })
+                    unreadByUser[sender] = 0
+                } else if (!activeWindow) {
+                    // 그 외엔 미읽음 +1 및 알림
                     unreadByUser[sender] = (unreadByUser[sender] || 0) + 1
-                    hasUnread.value = true
-
                     const alert = useAlertStore()
-                    const senderName = m.senderNickname || '알림'
-                    // 표현은 원하시는 문구에 맞춰 조정 가능합니다
-                    alert.show(`${senderName}님에게서 메시지가 도착했습니다`, 'success')
+                    const name = m.senderNickname || '알림'
+                    alert.show(`${name}님에게서 메시지가 도착했습니다`, 'success')
                 }
-            }
-
-            // 모달이 닫혀있거나, 다른 방을 보고 있을 때 알림 & 뱃지
-            const viewingCurrent = isHomeOpen.value && currentRoom.value?.id === roomId
-            if (!viewingCurrent) {
-                // hasUnread.value = true
-                // unreadCount.value += 1
-                const alert = useAlertStore()
-                const sender = payload.senderNickname || '알수없음'
-                alert.show(`${sender} 메시지가 도착했습니다.`, 'success')
-            } else {
-                // 현재 방을 보고 있으면 읽음 처리
-                markRead(roomId).then(refreshUnread).catch(() => {
-                })
             }
         })
         subscriptions[roomId] = () => sub.unsubscribe()
@@ -186,9 +196,13 @@ export const useChatStore = defineStore('chat', () => {
     //     isOpen.value = false
     // }
 
-    function openHome()  { isHomeOpen.value = true }
+    function openHome() {
+        isHomeOpen.value = true
+    }
 
-    function closeHome() { isHomeOpen.value = false }
+    function closeHome() {
+        isHomeOpen.value = false
+    }
 
     function disconnect() {
         // 해지
@@ -242,7 +256,7 @@ export const useChatStore = defineStore('chat', () => {
     // 나의 채팅방 목록
     async function refreshRooms() {
         try {
-            const list = await fetchMyRooms({ limit: 100 }) // 백엔드 추가 API
+            const list = await fetchMyRooms({limit: 100}) // 백엔드 추가 API
             rooms.value = list
         } catch {
             // 서버 API 없으면, 클라이언트 추론(임시): 메시지/미읽음 기반
@@ -251,7 +265,7 @@ export const useChatStore = defineStore('chat', () => {
                 const last = arr.length ? arr[arr.length - 1] : null
                 const otherId = last ? (last.senderId === (currentUser?.id ?? currentRoom?.meId) ? (currentRoom?.otherUserId) : last.senderId) : null
                 const other = users.value.find(u => Number(u.id) === Number(otherId))
-                return { id: Number(roomId), other, lastMessage: last, unread: other ? (unreadByUser[other.id] || 0) : 0 }
+                return {id: Number(roomId), other, lastMessage: last, unread: other ? (unreadByUser[other.id] || 0) : 0}
             })
         }
     }
@@ -260,7 +274,7 @@ export const useChatStore = defineStore('chat', () => {
     async function ensureRoomLoadedByUser(userId) {
         const room = await openDmRoom(userId)      // 서버가 방 재사용/생성
         if (!messages[room.id]) {
-            const page = await fetchMessages(room.id, { page: 0, size: 50 })
+            const page = await fetchMessages(room.id, {page: 0, size: 50})
             messages[room.id] = page.content.reverse()
         }
         subscribeRoom(room.id)
@@ -278,10 +292,11 @@ export const useChatStore = defineStore('chat', () => {
             found.open = true
             // 가장 위로 올리기(배열 뒤로 이동)
             const idx = windows.indexOf(found)
-            windows.splice(idx, 1); windows.push(found)
+            windows.splice(idx, 1);
+            windows.push(found)
             return
         }
-        windows.push({ roomId: room.id, otherUserId: room.otherUserId, open: true, createdAt: Date.now() })
+        windows.push({roomId: room.id, otherUserId: room.otherUserId, open: true, createdAt: Date.now()})
     }
 
     function closeWindow(roomId) {
@@ -294,8 +309,8 @@ export const useChatStore = defineStore('chat', () => {
         //if (!client.value || !connected.value) return
         client.value.publish({
             destination: `/app/chat.send.${roomId}`,
-            body: JSON.stringify({ content: text }),
-            headers: { 'content-type': 'application/json;charset=UTF-8' }
+            body: JSON.stringify({content: text}),
+            headers: {'content-type': 'application/json;charset=UTF-8'}
         })
     }
 
